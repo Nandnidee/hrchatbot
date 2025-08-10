@@ -1,13 +1,12 @@
 fastapi
 uvicorn
 python-dotenv
-sentence-transformers==2.2.2
+sentence-transformers==2.2.2 --no-deps
 torch==2.5.1
 faiss-cpu==1.7.4
 openai
 streamlit
 requests
 pydantic
-numpy
-pandas
-torchvision==0
+numpy<2.0.0
+pandas<2.3.0
