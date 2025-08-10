@@ -1,8 +1,9 @@
 fastapi
 uvicorn
 python-dotenv
-sentence-transformers
-faiss-cpu
+sentence-transformers==2.2.2
+torch==2.0.1+cpu --extra-index-url https://download.pytorch.org/whl/cpu
+faiss-cpu==1.7.4
 openai
 streamlit
 requests
