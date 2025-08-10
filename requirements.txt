@@ -10,3 +10,4 @@ requests
 pydantic
 numpy
 pandas
+torchvision==0
