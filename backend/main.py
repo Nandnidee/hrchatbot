@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 from dataclasses import asdict
+from functools import lru_cache
 
 from .rag_engine import RAGEngine, Employee
 
@@ -17,8 +18,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize RAG engine (loads data, embeddings/index)
-rag = RAGEngine(data_path="backend/employees.json", index_path="backend/embeddings.faiss")
+# ✅ Lazy-load RAG engine
+@lru_cache(maxsize=1)
+def get_rag():
+    return RAGEngine(
+        data_path="backend/employees.json",
+        index_path="backend/embeddings.faiss"
+    )
 
 class ChatRequest(BaseModel):
     query: str
@@ -32,7 +38,8 @@ async def chat_endpoint(payload: ChatRequest):
     if not payload.query or not payload.query.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty.")
 
-    # Retrieval + augmentation
+    rag = get_rag()  # load only once, on first request
+
     matches = rag.search(
         payload.query,
         top_k=payload.top_k,
@@ -41,14 +48,11 @@ async def chat_endpoint(payload: ChatRequest):
         required_skills=payload.required_skills,
     )
 
-    # Generation
     try:
         answer = rag.generate_answer(payload.query, matches)
     except Exception as e:
-        # fallback: return raw matches if generation fails
         answer = f"(Generation failed) {str(e)}"
 
-    # Return structured response
     return {
         "generated_answer": answer,
         "matches": [asdict(m) for m in matches]
@@ -61,6 +65,7 @@ async def simple_search(
     min_experience: int = Query(0),
     availability: Optional[str] = Query(None),
 ):
+    rag = get_rag()
     results = rag.search(q, top_k=top_k, min_experience=min_experience, availability=availability)
     return {"results": [r.dict() for r in results]}
 
