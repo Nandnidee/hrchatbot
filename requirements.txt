@@ -2,7 +2,7 @@ fastapi
 uvicorn
 python-dotenv
 sentence-transformers==2.2.2
-torch==2.5.1+cpu --index-url https://download.pytorch.org/whl/cpu
+torch==2.5.1
 faiss-cpu==1.7.4
 openai
 streamlit
@@ -10,4 +10,3 @@ requests
 pydantic
 numpy
 pandas
-torchvision==0.20.1+cpu --index-url https://download.pytorch.org/whl/cpu
